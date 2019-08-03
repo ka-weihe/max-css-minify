@@ -1,117 +1,133 @@
-var CleanCSS = require('clean-css');
-var CleanCSS = new CleanCSS({level: {2: {all: true}}});
-var Csso = require('csso');
-var Crass = require('crass');
-var Sqwish = require('sqwish');
-var Uglifycss = require('uglifycss');
-var CssPurge = require('css-purge');
-var MoreCss = require('more-css');
-var Cssmin = require('ycssmin').cssmin
+var CleanCSS, Crass, CssPurge, Cssmin, Cssnano, Csso, MoreCss, Sqwish, Uglifycss, _960, animate, bootstrap, cleancss, crass, cssmin, cssnano, csso, csspurge, engines, fs, max_minify, min, minstr, sqwish, uglifycss;
 
-var input = 'a{font-weight:bold;}';
-var output = CleanCSS.minify(input);
+CleanCSS = require('clean-css');
 
-//console.log(output);
-
-const Cssnano = require('cssnano');
-
-const cssnano = (css) => {
-  return Cssnano.process(css).then((result) => result.css)
-}
-
-const cleancss = (css) => {
-  return CleanCSS.minify(css).styles
-}
-
-const csso = (css) => {
-  return Csso.minify(css).css;
-}
-
-const crass = (css) => {
-  var parsed = Crass.parse(css);
-  var optimized = parsed.optimize({o1: true});
-  return optimized.toString();
-}
-
-const sqwish = (css) => {
-  return Sqwish.minify(css, true);
-}
-
-const uglifycss = (css) => {
-  return Uglifycss.processString(css)
-}
-
-const csspurge = (css) => {
-  var retval;
-  CssPurge.purgeCSS(css, {}, function(error, result){
-    if (error)
-      console.log(error)
-    else
-      retval = result;
-  });
-  return retval;
-}
-
-const cssmin = (css) => {
-  return Cssmin(css)
-}
-
-var fs = require('fs');
-var bootstrap = fs.readFileSync('./bootstrap.css', "utf8");
-var _960 = fs.readFileSync('./bootstrap.css', "utf8");
-var animate = fs.readFileSync('./animate.css', 'utf8');
-
-const engines = (async(n, css) => {
-  var x;
-  x = (((function() {
-    switch (n) {
-      case 0:
-        //x = await cssnano(css);
-        return x
-      case 1:
-        return cleancss(css);
-      case 2:
-        return csso(css);
-      case 3:
-        return crass(css);
-      case 4:
-        return sqwish(css);
-      case 5:
-        return uglifycss(css);
-      // case 6:
-      //   return csspurge(css);
-      case 6:
-        return cssmin(css);
+CleanCSS = new CleanCSS({
+  level: {
+    2: {
+      all: true
     }
-  })()));
-  return x
+  }
 });
 
-var min = Infinity
-var minstr = ""
-const max_minify = async (depth, cdepth, minifier, str, css) => {
-  if (depth < cdepth) return
-  str += minifier + ' '
+Csso = require('csso');
 
-  css = engines(minifier, css)
+Crass = require('crass');
 
+Sqwish = require('sqwish');
+
+Uglifycss = require('uglifycss');
+
+CssPurge = require('css-purge');
+
+MoreCss = require('more-css');
+
+Cssmin = require('ycssmin').cssmin;
+
+Cssnano = require('cssnano');
+
+cssnano = function(css) {
+  return Cssnano.process(css).then(function(result) {
+    result.css;
+  });
+};
+
+cleancss = function(css) {
+  return CleanCSS.minify(css).styles;
+};
+
+csso = function(css) {
+  return Csso.minify(css).css;
+};
+
+crass = function(css) {
+  var optimized, parsed;
+  parsed = Crass.parse(css);
+  optimized = parsed.optimize({
+    o1: true
+  });
+  return optimized.toString();
+};
+
+sqwish = function(css) {
+  return Sqwish.minify(css, true);
+};
+
+uglifycss = function(css) {
+  return Uglifycss.processString(css);
+};
+
+csspurge = function(css) {
+  var retval;
+  retval = void 0;
+  CssPurge.purgeCSS(css, {}, function(error, result) {
+    if (error) {
+      console.log(error);
+    } else {
+      retval = result;
+    }
+  });
+  return retval;
+};
+
+cssmin = function(css) {
+  return Cssmin(css);
+};
+
+fs = require('fs');
+
+bootstrap = fs.readFileSync('./bootstrap.css', 'utf8');
+
+_960 = fs.readFileSync('./bootstrap.css', 'utf8');
+
+animate = fs.readFileSync('./animate.css', 'utf8');
+
+engines = function(n, css) {
+  return ((function() {
+    try {
+      switch (n) {
+        case 0:
+          return cleancss(css);
+        case 1:
+          return csso(css);
+        case 2:
+          return sqwish(css);
+        case 3:
+          return crass(css);
+        case 4:
+          return uglifycss(css);
+        case 5:
+          return cssmin(css);
+      }
+    } catch (error1) {
+      return css;
+    }
+  })());
+};
+
+min = 2e308;
+
+minstr = '';
+
+max_minify = function(depth, cdepth, minifier, str, css) {
+  var i;
+  i = void 0;
+  if (depth < cdepth) {
+    return;
+  }
+  str += minifier + ' ';
+  css = engines(minifier, css);
   if (Buffer.byteLength(css, 'utf8') < min) {
-    min = Buffer.byteLength(css, 'utf8')
-    minstr = str
-    console.log(str)
+    min = Buffer.byteLength(css, 'utf8');
+    console.log(min);
+    console.log(minstr);
+    minstr = str;
   }
-  for (var i = 0; i < 7; ++i) {
-    max_minify(depth, cdepth + 1, i, str, css)
+  i = 0;
+  while (i <= 5) {
+    max_minify(depth, cdepth + 1, i, str, css);
+    ++i;
   }
-}
+};
 
-max_minify(2, 0, 0, "", animate)
-
-
-
-
-//console.log(engines(1, _960))
-// for (var i = 0; i < 8; ++i) {
-//
-//   engines(i, animate)
-// }
+max_minify(5, 0, 0, '', animate);
