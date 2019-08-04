@@ -1,4 +1,4 @@
-var CleanCSS, Crass, CssPurge, Cssmin, Cssnano, Csso, MoreCss, Sqwish, Uglifycss, _960, animate, bootstrap, cleancss, crass, cssmin, cssnano, csso, csspurge, engines, fs, max_minify, min, minstr, sqwish, uglifycss;
+var CleanCSS, Crass, CssPurge, Cssmin, Cssnano, Csso, MoreCss, Sqwish, Uglifycss, _960, animate, bootstrap, cleancss, crass, cssmin, csso, engines, fs, max_minify, min, mincss, minstr, sqwish, uglifycss;
 
 CleanCSS = require('clean-css');
 
@@ -26,21 +26,25 @@ Cssmin = require('ycssmin').cssmin;
 
 Cssnano = require('cssnano');
 
-cssnano = function(css) {
-  return Cssnano.process(css).then(function(result) {
-    result.css;
-  });
-};
+fs = require('fs');
 
-cleancss = function(css) {
+// Files
+bootstrap = fs.readFileSync('./bootstrap.css', 'utf8');
+
+_960 = fs.readFileSync('./bootstrap.css', 'utf8');
+
+animate = fs.readFileSync('./animate.css', 'utf8');
+
+// Minifiers
+cleancss = (css) => {
   return CleanCSS.minify(css).styles;
 };
 
-csso = function(css) {
+csso = (css) => {
   return Csso.minify(css).css;
 };
 
-crass = function(css) {
+crass = (css) => {
   var optimized, parsed;
   parsed = Crass.parse(css);
   optimized = parsed.optimize({
@@ -49,39 +53,19 @@ crass = function(css) {
   return optimized.toString();
 };
 
-sqwish = function(css) {
+sqwish = (css) => {
   return Sqwish.minify(css, true);
 };
 
-uglifycss = function(css) {
+uglifycss = (css) => {
   return Uglifycss.processString(css);
 };
 
-csspurge = function(css) {
-  var retval;
-  retval = void 0;
-  CssPurge.purgeCSS(css, {}, function(error, result) {
-    if (error) {
-      console.log(error);
-    } else {
-      retval = result;
-    }
-  });
-  return retval;
-};
-
-cssmin = function(css) {
+cssmin = (css) => {
   return Cssmin(css);
 };
 
-fs = require('fs');
-
-bootstrap = fs.readFileSync('./bootstrap.css', 'utf8');
-
-_960 = fs.readFileSync('./bootstrap.css', 'utf8');
-
-animate = fs.readFileSync('./animate.css', 'utf8');
-
+// Minifier routing
 engines = function(n, css) {
   return ((function() {
     try {
@@ -99,7 +83,7 @@ engines = function(n, css) {
         case 5:
           return cssmin(css);
       }
-    } catch (error1) {
+    } catch (error) {
       return css;
     }
   })());
@@ -108,6 +92,8 @@ engines = function(n, css) {
 min = 2e308;
 
 minstr = '';
+
+mincss = '';
 
 max_minify = function(depth, cdepth, minifier, str, css) {
   var i;
@@ -119,15 +105,16 @@ max_minify = function(depth, cdepth, minifier, str, css) {
   css = engines(minifier, css);
   if (Buffer.byteLength(css, 'utf8') < min) {
     min = Buffer.byteLength(css, 'utf8');
-    console.log(min);
-    console.log(minstr);
     minstr = str;
+    mincss = css;
+    console.log(minstr)
   }
   i = 0;
   while (i <= 5) {
     max_minify(depth, cdepth + 1, i, str, css);
     ++i;
   }
+  return mincss;
 };
 
-max_minify(5, 0, 0, '', animate);
+console.log(max_minify(5, 0, 0, '', animate));
