@@ -31,7 +31,7 @@ crass = (css) ->
   optimized.toString()
 
 sqwish = (css) ->
-  Sqwish.minify css, true
+  Sqwish.minify css, false
 
 uglifycss = (css) ->
   Uglifycss.processString css
@@ -63,6 +63,7 @@ max_minify = (css, depth, verbose = false) ->
       minSize = size
       minSeq = seq
       minCss = css
+      fs.writeFileSync 'fil.txt', minCss
 
       if verbose
         console.log minSize
@@ -88,8 +89,10 @@ max_minify = (css, depth, verbose = false) ->
 #
 # lol bootstrap
 
-for x in files
-  console.log x[0]
-  max_minify x[1], 4, true
+max_minify files[4][1], 4, true
+
+# for x in files
+#   console.log x[0]
+#   max_minify x[1], 4, true
 
  # max_minify files[0]['960.css'], 5, true
