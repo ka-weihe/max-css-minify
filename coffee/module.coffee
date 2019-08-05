@@ -8,10 +8,15 @@ Cssmin = require('ycssmin').cssmin
 CleanCSS = require('clean-css')
 CleanCSS = new CleanCSS(level: 2: all: true)
 
-# Files
-bootstrap = fs.readFileSync('./bootstrap.css', 'utf8')
-_960 = fs.readFileSync('./bootstrap.css', 'utf8')
-animate = fs.readFileSync('./animate.css', 'utf8')
+readFilesSync = (dir) ->
+  files = []
+  fs.readdirSync(dir).forEach (filename) ->
+    files.push(
+      [filename, fs.readFileSync  dir + '/' + filename]
+    )
+  return files
+
+files = readFilesSync './css'
 
 # Minifiers
 cleancss = (css) ->
@@ -39,19 +44,17 @@ engines = (n, css) ->
       when 1 then csso css
       when 2 then sqwish css
       when 3 then crass css
-      # when 4 then uglifycss css
-      # when 5 then cssmin css
+      when 4 then uglifycss css
+      when 5 then cssmin css
     catch
       css)
 
 max_minify = (css, depth, verbose = false) ->
-  console.log Buffer.byteLength css
   minSize = 2e308
   minSeq = ''
   minCss = ''
 
   helper = (cdepth, minifier, seq, css) ->
-    return if depth < cdepth
     css = engines minifier, css
     seq += minifier + ' '
     size = Buffer.byteLength css, 'utf8'
@@ -65,10 +68,11 @@ max_minify = (css, depth, verbose = false) ->
         console.log minSize
         console.log minSeq
 
-    for i in [0 .. 3]
+    for i in [0 .. 5]
+      return if depth < cdepth + 1
       helper cdepth + 1, i, seq, css
 
-  for i in [0 .. 3]
+  for i in [0 .. 5]
     helper 0, i, '', css
 
 
@@ -83,4 +87,9 @@ max_minify = (css, depth, verbose = false) ->
 # console.log Buffer.byteLength b
 #
 # lol bootstrap
-# max_minify bootstrap, 0, true
+
+for x in files
+  console.log x[0]
+  max_minify x[1], 4, true
+
+ # max_minify files[0]['960.css'], 5, true
